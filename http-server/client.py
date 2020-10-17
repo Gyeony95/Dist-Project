@@ -18,7 +18,7 @@ PORT = 10000
 BUFSIZE = 1024
 ADDR = (HOST, PORT)
 
-url = 'http://127.0.0.1:3000/dists'
+url = 'http://ec2-3-35-175-110.ap-northeast-2.compute.amazonaws.com:3000/dists'
 
 
 try:
