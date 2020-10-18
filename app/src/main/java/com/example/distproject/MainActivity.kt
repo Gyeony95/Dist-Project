@@ -59,6 +59,7 @@ class MainActivity : AppCompatActivity() {
                     Log.e("asd", jArray.toString())
                     var jObject:JSONObject = jArray.getJSONObject(jArray.length()-1)
                     Log.e("asd", jObject.getString("mst").toString())
+                    Log.e("length", (jArray.length()-1).toString())
 
                     tv_date.text = jObject.getString("createdAt")
                     if(jObject.getString("mst").toString().equals("high")){
