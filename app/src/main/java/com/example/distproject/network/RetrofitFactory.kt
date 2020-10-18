@@ -34,6 +34,6 @@ object RetrofitFactory {
         .build()
 
     fun serviceAPI(client: OkHttpClient): ServiceAPI =
-        retrofit("https://api.manana.kr/", client).create(ServiceAPI::class.java)
+        retrofit("http://ec2-3-35-175-110.ap-northeast-2.compute.amazonaws.com:3000/", client).create(ServiceAPI::class.java)
 
 }

@@ -22,9 +22,9 @@ clientSocket = socket(AF_INET, SOCK_STREAM)
 try:
     while True:
         if GPIO.input(DO) < 0.01:
-            data = {'mst': 'good'}
+            data = {'mst': 'high'}
         else:
-            data = {'mst': 'bad'}
+            data = {'mst': 'low'}
         res = requests.post(URL, data=data)
         print(res.status_code,res.text)
         time.sleep(1)

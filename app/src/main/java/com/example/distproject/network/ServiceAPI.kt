@@ -10,7 +10,7 @@ import retrofit2.http.POST
 
 interface ServiceAPI {
     //test
-    @POST("exchange/rate/KRW/USD.json")
-    fun getExchange(): Call<Object>
+    @GET("dists")
+    fun getData(): Call<Object>
 
 }

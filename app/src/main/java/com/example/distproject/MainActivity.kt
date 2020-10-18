@@ -1,11 +1,22 @@
 package com.example.distproject
 
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.avon.remindfeedback.Network.RetrofitFactory
 import com.github.nkzawa.socketio.client.IO
+import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_main.*
+import okhttp3.OkHttpClient
+import org.json.JSONArray
+import org.json.JSONObject
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.IOException
@@ -14,74 +25,63 @@ import java.net.Socket
 
 class MainActivity : AppCompatActivity() {
 
-    // 소켓통신에 필요한것
-    private val html = ""
-    private var mHandler: Handler? = null
-
-    //private var socket: Socket? = null
-    private var socket: com.github.nkzawa.socketio.client.Socket? = IO.socket("http://36cd89957a89.ngrok.io")
-
-    private var dos: DataOutputStream? = null
-    private var dis: DataInputStream? = null
-
-    private val ip = "121.127.180.189" // IP 번호
-
-    private val port = 8080 // port 번호
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        tv_response.setBackgroundResource(R.color.GREEN)
+        dataTest()
 
-        connect_btn.setOnClickListener{
-            connect()
+
+        refresh_layout.setOnRefreshListener {
+            // 새로고침 코드를 작성
+            dataTest()
+            // 새로고침 완료시,
+            // 새로고침 아이콘이 사라질 수 있게 isRefreshing = false
+            refresh_layout.isRefreshing = false
         }
+
     }
 
-    // 로그인 정보 db에 넣어주고 연결시켜야 함.
-    fun connect() {
-        mHandler = Handler()
-        Log.w("connect", "연결 하는중")
-        // 받아오는거
-        val checkUpdate: Thread = object : Thread() {
-            override fun run() {
-// ip받기
-                val newip: String = java.lang.String.valueOf(ip_edit.getText())
 
-// 서버 접속
-                try {
-                    socket = IO.socket("https://e02a8d3788dc.ngrok.io")
-                    Log.w("서버 접속됨", "서버 접속됨")
-                } catch (e1: IOException) {
-                    Log.w("서버접속못함", "서버접속못함")
-                    e1.printStackTrace()
-                }
-                Log.w("edit 넘어가야 할 값 : ", "안드로이드에서 서버로 연결요청")
-                try {
-                    dos = DataOutputStream(socket!!.getOutputStream()) // output에 보낼꺼 넣음
-                    dis = DataInputStream(socket!!.getInputStream()) // input에 받을꺼 넣어짐
-                    dos!!.writeUTF("안드로이드에서 서버로 연결요청")
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                    Log.w("버퍼", "버퍼생성 잘못됨")
-                }
-                Log.w("버퍼", "버퍼생성 잘됨")
 
-                // 서버에서 계속 받아옴 - 한번은 문자, 한번은 숫자를 읽음. 순서 맞춰줘야 함.
-                try {
-                    var line = ""
-                    var line2: Int
-                    while (true) {
-                        line = dis!!.readUTF()
-                        line2 = dis!!.read()
-                        Log.w("서버에서 받아온 값 ", "" + line)
-                        Log.w("서버에서 받아온 값 ", "" + line2)
+
+    fun dataTest() {
+        val client: OkHttpClient = RetrofitFactory.getClient()
+        val apiService = RetrofitFactory.serviceAPI(client)
+        val register_request: Call<Object> = apiService.getData()
+        register_request.enqueue(object : Callback<Object> {
+            override fun onResponse(call: Call<Object>, response: Response<Object>) {
+                if (response.isSuccessful) {
+
+                    var jArray: JSONArray = JSONArray(Gson().toJson(response.body()))
+                    Log.e("asd", jArray.toString())
+                    var jObject:JSONObject = jArray.getJSONObject(jArray.length()-1)
+                    Log.e("asd", jObject.getString("mst").toString())
+
+                    tv_date.text = jObject.getString("createdAt")
+                    if(jObject.getString("mst").toString().equals("high")){
+                        tv_response.setBackgroundResource(R.color.RED)
+
+                    }else{
+                        tv_response.setBackgroundResource(R.color.GREEN)
                     }
-                } catch (e: Exception) {
+
+
+                } else {
+                    val StatusCode = response.code()
+                    Log.e("post", "Status Code : $StatusCode")
                 }
+                Log.e("tag", "response=" + response.raw())
+
             }
-        }
-        // 소켓 접속 시도, 버퍼생성
-        checkUpdate.start()
+
+            override fun onFailure(call: Call<Object>, t: Throwable) {
+                Log.e("실패", t.message.toString())
+
+            }
+        })
     }
+
 }
