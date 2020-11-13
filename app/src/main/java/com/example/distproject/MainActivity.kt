@@ -25,8 +25,6 @@ import java.net.Socket
 
 class MainActivity : AppCompatActivity() {
 
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -43,10 +41,7 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
-
-
-
-
+    
     fun dataTest() {
         val client: OkHttpClient = RetrofitFactory.getClient()
         val apiService = RetrofitFactory.serviceAPI(client)
@@ -62,11 +57,15 @@ class MainActivity : AppCompatActivity() {
                     Log.e("length", (jArray.length()-1).toString())
 
                     tv_date.text = jObject.getString("createdAt")
-                    if(jObject.getString("mst").toString().equals("high")){
-                        tv_response.setBackgroundResource(R.color.RED)
+                    if(jObject.getString("mst").toString().equals("low")){
+                        tv_response.setBackgroundResource(R.color.GREEN)
+                        iv_img.setImageResource(R.drawable.smile)
+                        tv_response.text = ""
 
                     }else{
-                        tv_response.setBackgroundResource(R.color.GREEN)
+                        iv_img.setImageResource(R.drawable.warning)
+                        tv_response.text = jObject.getString("mst").toString()
+                        tv_response.setBackgroundResource(R.color.RED)
                     }
 
 
